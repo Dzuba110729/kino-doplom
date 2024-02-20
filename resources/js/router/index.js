@@ -25,9 +25,10 @@ const routes = [
         component: ClientIndex
     },
     {
-        path: '/hall',
+        path: '/hall/:id',
         name: 'client.hall',
-        component: ClientHall
+        component: ClientHall,
+        props: true
     },
     {
         path: '/payment',

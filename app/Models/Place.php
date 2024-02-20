@@ -12,4 +12,8 @@ class Place extends Model
     protected $fillable = ['hall_id', 'seat_id', 'status', 'order_id'];
     protected $hidden = ['created_at', 'updated_at', 'deleted_at'];
 
+    public function hall()
+    {
+        return $this->hasOne(Hall::class,'id','hall_id');
+    }
 }

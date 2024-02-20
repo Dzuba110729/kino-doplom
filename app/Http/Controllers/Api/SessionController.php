@@ -27,14 +27,17 @@ class SessionController extends Controller
             $grouped = SessionResource::collection($sessions)
                 ->groupBy(['film.name'])->all();
 
+
             foreach ($grouped as $key => $items) {
                 $data = [];
                 foreach ($items as $item) {
                     $data[] = [
                         'hallName' => $item->film->name,
+                        'hallId'=>$item->hall->id,
                         'datetime' => $item->datetime,
                         'description' => $item->film->description,
-                        'duration' => $item->film->duration
+                        'duration' => $item->film->duration,
+                        'sessionId' => $item->id
                     ];
                 }
                 $res[$key] = [
@@ -59,7 +62,7 @@ class SessionController extends Controller
                 $data[] = [
                     'film' => $item->film->name,
                     'datetime' => $item->datetime,
-                    'duration' => $item->film->duration
+                    'duration' => $item->film->duration,
                 ];
             }
             $res[$key] = [
@@ -91,9 +94,9 @@ class SessionController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(SessionResource $session)
+    public function show(Session $session)
     {
-
+        return new SessionResource($session);
     }
 
     /**

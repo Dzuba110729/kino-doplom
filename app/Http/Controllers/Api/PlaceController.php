@@ -15,8 +15,9 @@ class PlaceController extends Controller
      */
     public function index(Request $request)
     {
-        $places = Place::where('hall_id', $request->get('hallID'))->get();
-        return new PlaceResource($places);
+        /*$places = Place::where('hall_id', $request->get('hallID'))->get();
+        return new PlaceResource($places);*/
+        return PlaceResource::collection(Place::where('hall_id', $request->get('hallID'))->get());
     }
 
     /**

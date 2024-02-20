@@ -73,42 +73,10 @@
                     </template>
                 </div>
             </div>
+
         </div>
     </section>
-    <div class="popup" :class="{ active: isOpenModal }">
-        <div class="popup__container">
-            <div class="popup__content">
-                <div class="popup__header">
-                    <h2 class="popup__title">
-                        Статус сиденья
-                        <a class="popup__dismiss" @click.prevent="modalToggle">
-                            <img src="image/close.png" alt="Закрыть"></a>
-                    </h2>
-                </div>
-                <div class="popup__wrapper">
-                    <form @submit.prevent="saveHall">
-                        <div class="conf-step__legend">
-                            <h2 class="conf-step__hint" style="margin-bottom: 20px">Выберите статус сиденья</h2>
 
-                            <span class="conf-step__chair conf-step__chair_standart"
-                                  @click.prevent="setSeatStatus"></span> — обычные
-                            кресло
-                            <span class="conf-step__chair conf-step__chair_vip" @click.prevent="setSeatStatus"></span> —
-                            VIP кресло
-                            <span class="conf-step__chair conf-step__chair_disabled"
-                                  @click.prevent="setSeatStatus"></span> — заблокированно для заказа
-
-                        </div>
-                        <div class="conf-step__buttons text-center">
-                            <button @click.prevent="modalToggle"
-                                    class="conf-step__button conf-step__button-regular">Отменить
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
 </template>
 
 <script setup>

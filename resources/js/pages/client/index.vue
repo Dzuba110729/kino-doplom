@@ -21,8 +21,8 @@
             <section class="movie">
                 <div class="movie__info" style="margin-bottom:30px">
                     <div class="movie__description" style="">
-                        <h2 class="movie__title">{{item.film}}</h2>
-                        <p class="movie__synopsis">{{item.data[0].description}}</p>
+                        <h2 class="movie__title">{{ item.film }}</h2>
+                        <p class="movie__synopsis">{{ item.data[0].description }}</p>
                         <p class="movie__data">
                             <span class="movie__data-duration">{{ item.data[0].duration }}</span>
                             <span class="movie__data-origin">{{ item.data[0].country }}</span>
@@ -33,18 +33,15 @@
                 <div class="movie-seances__hall">
                     <h3 class="movie-seances__hall-title">Зал 1</h3>
                     <ul class="movie-seances__list">
-                        <li class="movie-seances__time-block"><a class="movie-seances__time" href="hall.html">10:20</a></li>
-                        <li class="movie-seances__time-block"><a class="movie-seances__time" href="hall.html">14:10</a></li>
+                        <li class="movie-seances__time-block">
+                            <router-link :to="{ name: 'client.hall', params: { id: 2} }"
+                                         class="movie-seances__time">
+                                10:20
+                            </router-link>
+                        </li>
                     </ul>
                 </div>
 
-                <div class="movie-seances__hall">
-                    <h3 class="movie-seances__hall-title">Зал 2</h3>
-                    <ul class="movie-seances__list">
-                        <li class="movie-seances__time-block"><a class="movie-seances__time" href="hall.html">11:15</a></li>
-                        <li class="movie-seances__time-block"><a class="movie-seances__time" href="hall.html">14:40</a></li>
-                    </ul>
-                </div>
             </section>
         </template>
 
@@ -54,9 +51,8 @@
 <script setup>
 import {onMounted, ref} from "vue";
 import useSessions from "../../composables/sessions.js";
-import {useHallStore} from "../../store/hall.js";
 
-const {sessions,getFilteredSessions} = useSessions()
+const {sessions, getFilteredSessions} = useSessions()
 
 const filterDate = ref(new Date().toISOString().slice(0, 10))
 const filterHall = ref()
