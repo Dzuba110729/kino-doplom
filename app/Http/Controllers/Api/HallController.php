@@ -14,7 +14,7 @@ class HallController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         return HallResource::collection(Hall::all());
     }
@@ -25,7 +25,7 @@ class HallController extends Controller
     public function store(HallRequest $request)
     {
         $hall = Hall::create($request->validated());
-        $this->createBasePlaces($hall->id, 3, 3);
+        $this->createBasePlaces($hall->id, 2, 2);
         return new HallResource($hall);
     }
 
@@ -43,7 +43,7 @@ class HallController extends Controller
     public function update(Request $request, Hall $hall)
     {
         $hall->update($request->all());
-        $this->createOrUpdateBasePlaces($hall->id, $request->post('row'), $request->post('col'));
+        $this->createBasePlaces($hall->id, $request->post('row'), $request->post('col'));
         return new HallResource($hall);
     }
 
@@ -57,22 +57,21 @@ class HallController extends Controller
         return response()->noContent();
     }
 
-    private function createOrUpdateBasePlaces(int $hallId, int $row = 2, int $col = 2)
+    private function createBasePlaces(int $hallId, int $row = 2, int $col = 2)
     {
-        $json = [];
+        Place::where('hall_id',$hallId )->delete();
+
+        $data = [];
         for ($i = 1; $i <= $row * $col; $i++) {
-            $json[] = [
-                "seat_number" => $i,
-                "seat_status" => "standart",
-                "order_id" => null
+            $data[] = [
+                "hall_id" => $hallId,
+                "seat_id" => $i,
+                "status" => 0,
+                "order_id" => 0
             ];
         }
 
-        Place::updateOrCreate(
-            ['hall_id' => $hallId],
-            ['seats' => json_encode($json)]
-        );
-
+        Place::insert($data);
     }
 
 

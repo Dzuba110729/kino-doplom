@@ -23,9 +23,8 @@ class SessionRequest extends FormRequest
     {
         return [
             'datetime' => ['required',],
-            'hall_id' => ['required'],
-            'film_id' => ['required'],
-            'seats' => ['required', 'json'],
+            'hallId' => ['required'],
+            'filmId' => ['required'],
         ];
     }
 }

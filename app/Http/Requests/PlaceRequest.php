@@ -11,7 +11,7 @@ class PlaceRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,9 +21,6 @@ class PlaceRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'hall_id' => ['required', 'integer'],
-            'seats' => ['required', 'json'],
-        ];
+        return [];
     }
 }

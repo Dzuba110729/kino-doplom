@@ -11,9 +11,15 @@ class Hall extends Model
     use HasFactory;
 
     protected $fillable = ['name', 'row', 'col', 'price', 'vip_price', 'is_active'];
+    protected $hidden = ['created_at', 'updated_at', 'deleted_at'];
 
     public function place(): HasOne
     {
         return $this->hasOne(Place::class);
     }
+    public function session(): HasOne
+    {
+        return $this->hasOne(Place::class);
+    }
+
 }

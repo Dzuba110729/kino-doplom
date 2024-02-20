@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\FilmController;
+use App\Http\Controllers\Api\PlaceController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\HallController;
@@ -24,3 +25,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::apiResource('hall', HallController::class);
 Route::apiResource('film', FilmController::class);
 Route::apiResource('session', SessionController::class);
+Route::apiResource('place', PlaceController::class);
+

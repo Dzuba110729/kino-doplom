@@ -5,25 +5,29 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Place;
 use Illuminate\Http\Request;
-use App\Http\Requests\PlaceRequest;
 use App\Http\Resources\PlaceResource;
 
 class PlaceController extends Controller
 {
 
     /**
-     * Update the specified resource in storage.
+     * Display a listing of the resource.
      */
-    public function update(Request $request, Place $place)
+    public function index(Request $request)
     {
-        //
+        $places = Place::where('hall_id', $request->get('hallID'))->get();
+        return new PlaceResource($places);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Update the specified resource in storage.
      */
-    public function destroy(Place $place)
+    public function update(Request $request)
     {
-        //
+        Place::where('hall_id', $request->input('hallId'))
+            ->where('seat_id', $request->input('idSeat'))
+            ->update(['status' => $request->input('type')]);
+
     }
+
 }

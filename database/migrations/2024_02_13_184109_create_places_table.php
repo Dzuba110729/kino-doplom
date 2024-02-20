@@ -14,7 +14,9 @@ return new class extends Migration
         Schema::create('places', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('hall_id');
-            $table->json('seats');
+            $table->unsignedInteger('seat_id');
+            $table->string('status');
+            $table->unsignedInteger('order_id');
             $table->timestamps();
         });
     }

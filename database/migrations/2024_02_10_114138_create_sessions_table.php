@@ -16,7 +16,6 @@ return new class extends Migration
             $table->dateTime('datetime');
             $table->unsignedInteger('hall_id');
             $table->unsignedInteger('film_id');
-            $table->json('seats');
             $table->timestamps();
         });
     }

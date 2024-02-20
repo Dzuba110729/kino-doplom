@@ -7,16 +7,17 @@ export default function useHalls() {
     const {setHalls, setHall, setActiveHall} = useHallStore()
 
     const errors = ref('')
+    const hall = ref([])
 
     const getHalls = async () => {
         let response = await axios.get('/api/hall')
         await setHalls(response.data.data)
-        //await setActiveHall(response.data.data[0].id)
     }
 
     const getHall = async (id) => {
         let response = await axios.get(`/api/hall/${id}`)
         setHall(response.data.data)
+        hall.value = response.data.data
     }
 
     const storeHall = async (data) => {
@@ -50,11 +51,12 @@ export default function useHalls() {
     }
 
     return {
+        hall,
         errors,
         getHalls,
         getHall,
         storeHall,
         updateHall,
-        destroyHall
+        destroyHall,
     }
 }

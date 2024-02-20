@@ -46,48 +46,124 @@
 
             <p class="conf-step__paragraph">Теперь вы можете указать типы кресел на схеме зала:</p>
             <div class="conf-step__legend">
-                <span class="conf-step__chair conf-step__chair_standart"></span> — обычные кресла
-                <span class="conf-step__chair conf-step__chair_vip"></span> — VIP кресла
-                <span class="conf-step__chair conf-step__chair_disabled"></span> — заблокированные (нет кресла)
-                <p class="conf-step__hint">Чтобы изменить вид кресла, нажмите по нему левой кнопкой мыши</p>
+
+                <span class="conf-step__chair conf-step__chair_standart" @click="setTypeSeat(0)"></span> — обычные
+                кресла
+                <span class="conf-step__chair conf-step__chair_vip" @click="setTypeSeat(1)"></span> — VIP кресла
+                <span class="conf-step__chair conf-step__chair_disabled" @click="setTypeSeat(2)"></span> —
+                заблокированные (нет кресла)
+
+                <p class="conf-step__hint">Чтобы изменить вид кресла, выберите какое кресло хотите добавить и кликните
+                    на нужном месте<br>
+                    Сейчас выбрано для изменения: {{ getTypeText(typeSeat) }}</p>
             </div>
 
             <div class="conf-step__hall">
                 <div class="conf-step__hall-wrapper">
-                    <div class="conf-step__row">
-                        <!--<template v-for="(item, index) in hall.seats.seats" :key="index">
-                            <li>
-                                <span class="conf-step__chair conf-step__chair_vip"></span>
-                            </li>
-                        </template>-->
-                    </div>
+                    <template v-for="(item, indexRow) in hall.row" :key="indexRow">
+                        <div class="conf-step__row">
+                            <template v-for="(item, indexCol) in hall.col" :key="indexCol">
+                                <span class="conf-step__chair"
+                                      :id="indexRow*hall.col+(indexCol)+1"
+                                      :class="getClassType(indexRow*hall.col+(indexCol))"
+                                      @click.prevent="setSeatStatus((indexRow*hall.col+indexCol)+1, hall.id, typeSeat)">
+                                </span>
+                            </template>
+                        </div>
+                    </template>
                 </div>
-
-                <fieldset class="conf-step__buttons text-center">
-                    <button class="conf-step__button conf-step__button-regular">Отмена</button>
-                    <input type="submit" value="Сохранить" class="conf-step__button conf-step__button-accent">
-                </fieldset>
-
             </div>
         </div>
     </section>
+    <div class="popup" :class="{ active: isOpenModal }">
+        <div class="popup__container">
+            <div class="popup__content">
+                <div class="popup__header">
+                    <h2 class="popup__title">
+                        Статус сиденья
+                        <a class="popup__dismiss" @click.prevent="modalToggle">
+                            <img src="image/close.png" alt="Закрыть"></a>
+                    </h2>
+                </div>
+                <div class="popup__wrapper">
+                    <form @submit.prevent="saveHall">
+                        <div class="conf-step__legend">
+                            <h2 class="conf-step__hint" style="margin-bottom: 20px">Выберите статус сиденья</h2>
+
+                            <span class="conf-step__chair conf-step__chair_standart"
+                                  @click.prevent="setSeatStatus"></span> — обычные
+                            кресло
+                            <span class="conf-step__chair conf-step__chair_vip" @click.prevent="setSeatStatus"></span> —
+                            VIP кресло
+                            <span class="conf-step__chair conf-step__chair_disabled"
+                                  @click.prevent="setSeatStatus"></span> — заблокированно для заказа
+
+                        </div>
+                        <div class="conf-step__buttons text-center">
+                            <button @click.prevent="modalToggle"
+                                    class="conf-step__button conf-step__button-regular">Отменить
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script setup>
 import useHalls from '@/composables/halls'
+import usePlaces from '@/composables/places'
 import {useHallStore} from '/resources/js/store/hall'
-import {onMounted} from "vue";
+import {onMounted, ref} from "vue";
 
+const {halls} = useHallStore()
+const {getHall, updateHall, hall} = useHalls()
+const {getPlaces, updatePlace, places} = usePlaces()
 
-const {halls, hall,activeHall} = useHallStore()
-const {getHall, updateHall, getHalls} = useHalls()
+const isOpenModal = ref(false)
+const typeSeat = ref(0)
 
-onMounted(async (activeHall) => {
-    //await getActiveHall(activeHall)
-})
+const modalToggle = () => {
+    isOpenModal.value = !isOpenModal.value
+}
+
+const classMap = {
+    '0': 'conf-step__chair_standart',
+    '1': 'conf-step__chair_vip',
+    '2': 'conf-step__chair_disabled',
+}
+
+const typeTextMap = {
+    '0': 'Обычное кресло',
+    '1': 'VIP кресло',
+    '2': 'Нет кресла',
+}
+
+const getTypeText = (type) => {
+    return typeTextMap[type]
+}
+
+const setTypeSeat = (type) => {
+    typeSeat.value = type
+}
+const setSeatStatus = async (idSeat, hallID) => {
+    let data = {
+        'idSeat': idSeat,
+        'hallId': hallID,
+        'type':typeSeat.value
+    }
+    await updatePlace(data)
+    await getPlaces(hallID)
+}
+
+const getClassType = (id) => {
+    return classMap[places.value[id].status]
+}
 
 const getActiveHall = async (id) => {
     await getHall(id)
+    await getPlaces(hall.value.id)
 }
 const resizeHall = async (id) => {
     if (!window.confirm('Внимание, при изменении размера зала - статусы мест сбросятся. Продолжить?')) {
@@ -95,5 +171,6 @@ const resizeHall = async (id) => {
     }
     await updateHall(id, {...hall.value})
     await getHall(id)
+    await getPlaces(hall.value.id)
 }
 </script>

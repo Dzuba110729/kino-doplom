@@ -7,10 +7,14 @@ export default function useSessions() {
     const sessions = ref([])
     const session = ref([])
 
-
     const getSessions = async () => {
         let response = await axios.get('/api/session')
         sessions.value = response.data.data
+    }
+
+    const getFilteredSessions = async (datetime,type) => {
+        let response = await axios.get('/api/session', { params: {'filter[datetime]': datetime, 'type':type} })
+        sessions.value = response.data
     }
 
     const getSession = async (id) => {
@@ -54,6 +58,7 @@ export default function useSessions() {
         storeSession,
         updateSession,
         destroySession,
+        getFilteredSessions,
         errors,
         sessions,
         session

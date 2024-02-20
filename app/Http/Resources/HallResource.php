@@ -22,8 +22,7 @@ class HallResource extends JsonResource
             'col' => $this->col,
             'price' => $this->price,
             'vip_price' => $this->vip_price,
-            'is_active'=> $this->is_active,
-            'seats'=>$this->place
+            'is_active' => $this->is_active,
         ];
     }
 }

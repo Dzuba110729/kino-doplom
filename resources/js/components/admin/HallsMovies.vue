@@ -22,43 +22,36 @@
             </div>
 
             <div class="conf-step__seances">
-                <div class="conf-step__seances-hall">
-                    <h3 class="conf-step__seances-title">Зал 1</h3>
-                    <div class="conf-step__seances-timeline">
-                        <div class="conf-step__seances-movie"
-                             style="width: 60px; background-color: rgb(133, 255, 137); left: 0;">
-                            <p class="conf-step__seances-movie-title">Миссия выполнима</p>
-                            <p class="conf-step__seances-movie-start">00:00</p>
-                        </div>
-                        <div class="conf-step__seances-movie"
-                             style="width: 60px; background-color: rgb(133, 255, 137); left: 360px;">
-                            <p class="conf-step__seances-movie-title">Миссия выполнима</p>
-                            <p class="conf-step__seances-movie-start">12:00</p>
-                        </div>
-                        <div class="conf-step__seances-movie"
-                             style="width: 65px; background-color: rgb(202, 255, 133); left: 420px;">
-                            <p class="conf-step__seances-movie-title">Звёздные войны XXIII: Атака клонированных
-                                клонов</p>
-                            <p class="conf-step__seances-movie-start">14:00</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="conf-step__seances-hall">
-                    <h3 class="conf-step__seances-title">Зал 2</h3>
-                    <div class="conf-step__seances-timeline">
-                        <div class="conf-step__seances-movie"
-                             style="width: 65px; background-color: rgb(202, 255, 133); left: 595px;">
-                            <p class="conf-step__seances-movie-title">Звёздные войны XXIII: Атака клонированных
-                                клонов</p>
-                            <p class="conf-step__seances-movie-start">19:50</p>
-                        </div>
-                        <div class="conf-step__seances-movie"
-                             style="width: 60px; background-color: rgb(133, 255, 137); left: 660px;">
-                            <p class="conf-step__seances-movie-title">Миссия выполнима</p>
-                            <p class="conf-step__seances-movie-start">22:00</p>
+                <label class="conf-step__label conf-step__label-fullsize" style="margin-top:20px;">
+                    Дата сеансов:
+                    <input
+                        type="date"
+                        class="conf-step__input"
+                        v-model="filterDate"
+                        @change="filterSessions"
+                    />
+                </label>
+
+                <template v-for="item in sessions">
+                    <div class="conf-step__seances-hall">
+                        <h3 class="conf-step__seances-title">{{ item.hallName }}</h3>
+                        <div class="conf-step__seances-timeline">
+                            <template v-for="item in item.data">
+                                <div class="conf-step__seances-movie"
+                                     style="background-color: rgb(133, 255, 137);"
+                                     :style="{ 'width': getWidthFilm(item.duration)  + 'px',
+                                            'left': getCoordinatesFilm(item.datetime) + 'px'}"
+                                >
+                                    <p class="conf-step__seances-movie-title">{{ item.film }}</p>
+                                    <p class="conf-step__seances-movie-start">{{ getTime(item.datetime) }}</p>
+                                </div>
+                            </template>
+
                         </div>
                     </div>
-                </div>
+                </template>
+
+
             </div>
 
             <!--<fieldset class="conf-step__buttons text-center">
@@ -129,6 +122,7 @@
                 </div>
                 <div class="popup__wrapper">
                     <form @submit.prevent="saveSession">
+
                         <label class="conf-step__label conf-step__label-fullsize">
                             Название зала
                             <select v-model="formAddSession.hallId"
@@ -138,13 +132,13 @@
                                 </template>
                             </select>
                         </label>
+
                         <label class="conf-step__label conf-step__label-fullsize">
                             Дата и время
                             <input
                                 type="datetime-local"
-                                name="meeting-time"
                                 class="conf-step__input"
-                                v-model="formAddSession.dateTime"
+                                v-model="formAddSession.datetime"
                             />
                         </label>
 
@@ -164,6 +158,7 @@
                                     class="conf-step__button conf-step__button-regular">Отменить
                             </button>
                         </div>
+
                     </form>
                 </div>
             </div>
@@ -180,23 +175,53 @@ import {useHallStore} from '/resources/js/store/hall'
 
 const {halls} = useHallStore()
 const {errors, films, getFilms, destroyFilm, storeFilm} = useFilms()
-const {sessions, getSessions, destroySession, storeSession} = useSessions()
+const {sessions, storeSession, getFilteredSessions} = useSessions()
+
 const formAddFilm = reactive({name: '', duration: '', description: '', country: ''})
-const formAddSession = reactive({dateTime: '', hallId: '', filmId: '',})
+const formAddSession = reactive({datetime: '', hallId: '', filmId: '',})
+
+const filterDate = ref(new Date().toISOString().slice(0, 10))
 
 onMounted(async () => {
     await getFilms()
-    await getSessions()
+    await filterSessions()
 })
+
+const filterSessions = async () => {
+    await getFilteredSessions(filterDate.value)
+}
+
+const getCoordinatesFilm = (time) => {
+    let timeN = new Date(time)
+    let coordinates = 30 * (timeN.getHours() + (timeN.getMinutes() / 60));
+    return coordinates
+}
+
+const getTime = (datetime) => {
+    let timeN = new Date(datetime)
+    return addZero(timeN.getHours()) + ':' + addZero(timeN.getMinutes())
+}
+
+const getWidthFilm = (duration) => {
+    return duration * 1
+}
+
 const saveSession = async () => {
     await storeSession({...formAddSession})
     if (errors.value === '') {
-        await getSessions()
+        await getFilteredSessions(filterDate.value)
         resetForm()
-        modalAddFilmToggle()
+        modalSessionToggle()
+
     } else {
         return
     }
+}
+const addZero = (time) => {
+    if (time < 10) {
+        time = "0" + time
+    }
+    return time
 }
 
 const saveFilm = async () => {
@@ -215,7 +240,7 @@ const deleteFilm = async (id) => {
         return
     }
     await destroyFilm(id)
-    await getFilms()
+    getFilms()
 }
 
 const isOpenAddFilmModal = ref(false)
@@ -229,12 +254,12 @@ const modalSessionToggle = () => {
 }
 
 const resetForm = () => {
-        formAddFilm.name = '',
+    formAddFilm.name = '',
         formAddFilm.description = '',
         formAddFilm.country = '',
         formAddFilm.duration = '',
-        formAddFilm.dateTime = '',
-        formAddFilm.hallId = '',
-        formAddFilm.filmId = ''
+        formAddFilm.datetime = '',
+        formAddFilm.hall_id = '',
+        formAddFilm.film_id = ''
 }
 </script>

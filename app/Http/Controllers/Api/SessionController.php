@@ -3,29 +3,88 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\HallResource;
-use App\Models\Hall;
 use App\Models\Session;
-use Illuminate\Http\Request;
 use App\Http\Requests\SessionRequest;
 use App\Http\Resources\SessionResource;
+use Illuminate\Http\Request;
+use Spatie\QueryBuilder\QueryBuilder;
 
 class SessionController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return SessionResource::collection(Session::all());
+
+        $sessions = QueryBuilder::for(Session::class)
+            ->allowedFilters(['datetime'])
+            ->defaultSort('datetime')
+            ->get();
+
+        if ($request->input('type') === 'client') {
+
+            $grouped = SessionResource::collection($sessions)
+                ->groupBy(['film.name'])->all();
+
+            foreach ($grouped as $key => $items) {
+                $data = [];
+                foreach ($items as $item) {
+                    $data[] = [
+                        'hallName' => $item->film->name,
+                        'datetime' => $item->datetime,
+                        'description' => $item->film->description,
+                        'duration' => $item->film->duration
+                    ];
+                }
+                $res[$key] = [
+                    'film' => $key,
+                    'data' => $data
+                ];
+            }
+
+            $res = array_values($res);
+
+            return response()->json($res);
+
+        }
+
+        $grouped = SessionResource::collection($sessions)
+            ->groupBy('hall.name')->all();
+
+        $res = [];
+        foreach ($grouped as $key => $items) {
+            $data = [];
+            foreach ($items as $item) {
+                $data[] = [
+                    'film' => $item->film->name,
+                    'datetime' => $item->datetime,
+                    'duration' => $item->film->duration
+                ];
+            }
+            $res[$key] = [
+                'hallName' => $key,
+                'data' => $data
+            ];
+        }
+
+        $res = array_values($res);
+
+        return response()->json($res);
     }
+
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(SessionRequest $request)
     {
-        $session = Session::create($request->validated());
+        $session = Session::firstOrCreate([
+            'datetime' => $request->datetime,
+            'hall_id' => $request->hallId,
+        ], [
+            'film_id' => $request->filmId,
+        ]);
         return new SessionResource($session);
     }
 
@@ -34,7 +93,7 @@ class SessionController extends Controller
      */
     public function show(SessionResource $session)
     {
-        //
+
     }
 
     /**
