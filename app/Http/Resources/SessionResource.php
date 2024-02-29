@@ -18,7 +18,7 @@ class SessionResource extends JsonResource
             'id' => $this->id,
             'datetime' => $this->datetime,
             'film' => $this->film->name,
-            'hall' => $this->hall->name
+            'hall' => $this->hall
         ];
     }
 }

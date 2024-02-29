@@ -27,29 +27,49 @@ class SessionController extends Controller
             $grouped = SessionResource::collection($sessions)
                 ->groupBy(['film.name'])->all();
 
+            $res = [];
+            foreach ($grouped as $filmName => $items) {
 
-            foreach ($grouped as $key => $items) {
-                $data = [];
+                $halls = [];
+                $hallDates = [];
+
+                $description = null;
+                $duration = null;
+
                 foreach ($items as $item) {
-                    $data[] = [
-                        'hallName' => $item->film->name,
-                        'hallId'=>$item->hall->id,
-                        'datetime' => $item->datetime,
-                        'description' => $item->film->description,
-                        'duration' => $item->film->duration,
-                        'sessionId' => $item->id
+                    if (!$description) {
+                        $description = $item->film->description;
+                    }
+                    if (!$duration) {
+                        $duration = $item->film->duration;
+                    }
+
+                    $halls[$item->hall->name] = [];
+                    $hallDates[$item->hall->name][] = [
+                        'id'=>$item->id,
+                        'datetime' => $item->datetime
                     ];
                 }
-                $res[$key] = [
-                    'film' => $key,
-                    'data' => $data
+
+                ksort($halls);
+
+                foreach ($hallDates as $item->hall->name => $dates) {
+                    asort($dates);
+                    $halls[$item->hall->name] = [
+                        'hallName' => $item->hall->name,
+                        'dates' => $dates
+                    ];
+                }
+
+                $res[$filmName] = [
+                    'film' => $filmName,
+                    'description' => $description,
+                    'duration' => $duration,
+                    'halls' => array_values($halls)
                 ];
             }
 
-            $res = array_values($res);
-
             return response()->json($res);
-
         }
 
         $grouped = SessionResource::collection($sessions)
